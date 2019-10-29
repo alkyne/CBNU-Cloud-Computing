@@ -1,11 +1,21 @@
 import boto3
 import sys
 
-#ec2 = boto3.client('ec2')
-
 class Menu:
 
     def __init__(self):
+        self.client = boto3.client('ec2')
+        self.ec2 = boto3.resource('ec2')
+        self.options = {
+            1 : self.listInstances,
+            3 : self.startInstance,
+            5 : self.stopInstance,
+            7 : self.rebootInstance,
+            8 : self.listImages,
+            99: self.byebye,
+        }
+    
+    def displayMenu(self):
         print('---------------------------------------------------')
         print(' 1. list instance\t\t2. available zones')
         print(' 3. start instance\t\t4. available regions')
@@ -14,23 +24,25 @@ class Menu:
         print('\t\t\t\t99. quit')
         print('---------------------------------------------------')
 
-        self.option = 1
-    
-    def getOption(self):
-        return self.option
+    def runner(self):
+        # runner
+        self.displayMenu()
+        print("Input menu : ", end='')
+        action = self.options.get(int(input()))
+        if action:
+            action()
+        else:
+            print("hey what ?!?") # invalid menu
 
-class Runner:
+    def inputInstanceId(self):
+        print("Instance Id : ", end='')
+        self.instanceId = input()
 
-    def __init__(self, option):
-        # self.client = boto3.client('ec2')
-        self.ec2 = boto3.resource('ec2')
-        # self.option = option
-
-    def listInstance(self):
-
-        self.all_instances = self.ec2.instances.all()
+    def listInstances(self):
+        allInstances = self.ec2.instances.all()
         
-        for x in self.all_instances:
+        print ("Listing instances....")
+        for x in allInstances:
             instanceId = x.id
             instanceName = x.tags[0]['Value']
             instanceAmi = x.image_id
@@ -42,43 +54,47 @@ class Runner:
             # print(dir(x))
     
     def startInstance(self):
-        print("Instance Id : ")
-        instanceId = input()
-        instance = self.ec2.Instance(instanceId)
-        instanceState = instance.state['Name']
+        self.inputInstanceId()
+        instance = self.ec2.Instance(self.instanceId)
+        instanceState = instance.state['Name'] # get instance state
         if instanceState == 'stopped':
             res = instance.start() # start instance
             res = str(res)
             if res.find("pending") != -1:
-                print ("Instance [%s] successfully started." % instanceId)
+                print ("Instance [%s] successfully started." % self.instanceId)
         else:
-            print ("Instance [%s] is already running." % instanceId)
+            print ("Instance [%s] is already running." % self.instanceId)
 
     def stopInstance(self):
-        print("Instance Id : ")
-        instanceId = input()
-        instance = self.ec2.Instance(instanceId)
-        instanceState = instance.state['Name']
+        self.inputInstanceId()
+        instance = self.ec2.Instance(self.instanceId)
+        instanceState = instance.state['Name'] # get instance state
         if instanceState == 'running':
             res = instance.stop() # stop instance
             res = str(res)
             if res.find("stopping") != -1:
-                print ("Instance [%s] successfully stopped." % instanceId)
+                print ("Instance [%s] successfully stopped." % self.instanceId)
         else:
-            print ("Instance [%s] is not running." % instanceId)
+            print ("Instance [%s] is not running." % self.instanceId)
     
     def rebootInstance(self):
-        print("Instance Id : ")
-        instanceId = input()
-        instance = self.ec2.Instance(instanceId)
-        instanceState = instance.state['Name']
-        # if instanceState = 'running':
+        self.inputInstanceId()
+        instance = self.ec2.Instance(self.instanceId)
+        instanceState = instance.state['Name'] # get instance state
+        if instanceState == 'running':
+            instance.reboot() # reboot instance
+            print ("rebooting [%s]..." % instanceId)
+
+    def listImages(self):
+        allImages = self.client.describe_images(Owners=['self'])
+        
+        print("[ImageID] %s [Name] %s [Owner] %s" )
+
+    def byebye(self):
+        print("bye bye")
+        sys.exit(0)
 
 if __name__ == '__main__':
-    # m = Menu()
-    # r = Runner(m.getOption())
-    # del m
-    # del r
-    # Runner(2).listInstance()
-    Runner(2).stopInstance()
-
+    while True:
+        m = Menu().runner()
+        del m

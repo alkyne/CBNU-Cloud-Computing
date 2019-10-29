@@ -13,3 +13,8 @@ Controlling AWS ec2 instances with AWS SDK
 1. listing instance
 2. starting instance
 3. stopping instance
+
+### Additional Functions
+
+1. listing running instance
+2. listing stopped instance

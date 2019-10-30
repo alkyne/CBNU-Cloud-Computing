@@ -12,6 +12,8 @@ class Menu:
             5 : self.stopInstance,
             7 : self.rebootInstance,
             8 : self.listImages,
+            9 : self.createImage,
+            10: self.deleteImage,
             99: self.byebye,
         }
 
@@ -23,6 +25,8 @@ class Menu:
         print(' 3. start instance\t\t4. available regions')
         print(' 5. stop instance\t\t6. create instance')
         print(' 7. reboot instance\t\t8. list images')
+        print(' 9. (additional) create image')
+        print(' 10. (additional) delete image')
         print('\t\t\t\t99. quit')
         print('---------------------------------------------------')
 
@@ -73,9 +77,7 @@ class Menu:
             # print(dir(x))
     
     def startInstance(self):
-        
         instance = self.getInstance()
-
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'stopped':
             res = instance.start() # start instance
@@ -104,9 +106,28 @@ class Menu:
             print ("rebooting [%s]..." % self.instanceId)
 
     def listImages(self):
-        allImages = self.client.describe_images(Owners=['self'])
-        
-        print("[ImageID] %s [Name] %s [Owner] %s" )
+        imageDict = self.client.describe_images(Owners=['self'])
+        allImages = imageDict['Images']
+
+        for x in allImages:
+            imageId = x['ImageId']
+            imageName = x['ImageLocation'].split('/')[1]
+            ownerId = x['OwnerId']    
+            print("[ImageID] %s [Owner] %s [Name] %s" % (imageId, ownerId, imageName))
+
+    def createImage(self):
+        self.getInstance()
+        print("New Image name : ", end='')
+        imageName = input()
+        self.client.create_image(InstanceId=self.instanceId, Name=imageName)
+
+        print("Creating new image [%s] from [%s] done" % (imageName, self.instanceId))
+
+    def deleteImage(self):
+        print("Image id for deleting: ", end='')
+        imageId = input()
+        self.client.deregister_image(ImageId=imageId)
+        print("Deleting image [%s] done" % (imageId))
 
     def byebye(self):
         print("bye bye")

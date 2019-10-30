@@ -20,8 +20,8 @@ Controlling AWS ec2 instances with AWS SDK
 
 1. creating image (AMI) from instance
 2. deleting image (AMI)
-3. listing running instance
-4. listing stopped instance
+3. listing running instance (not implemented yet)
+4. listing stopped instance (not implemented yet)
 
 ### Requirements
 

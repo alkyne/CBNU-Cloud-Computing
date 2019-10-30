@@ -26,7 +26,11 @@ class Menu:
         self.runner() # run
     
     def displayMenu(self):
-        print('---------------------------------------------------')
+        print('-----------------------------------------------------------------')
+        print('\t\tAmazone AWS Control Panel using SDK\n')
+        print('\tCloud Computing, Computer Science Department')
+        print('\t\t\t\tat Chungbuk National University')
+        print('-----------------------------------------------------------------')
         print(' 1. list instances\t\t2. available zones')
         print(' 3. start instance\t\t4. available regions')
         print(' 5. stop instance\t\t6. create instance')
@@ -38,7 +42,7 @@ class Menu:
         print(' 13. (additional) list running instances')
         print(' 14. (additional) list stopped instances')
         print('\t\t\t\t99. quit')
-        print('---------------------------------------------------')
+        print('-----------------------------------------------------------------')
 
     def runner(self):
         # runner
@@ -245,7 +249,6 @@ class Menu:
 
             if "stop" in state:
                 print ("[ID] : %s [name] : %s [type] : %s [state] : %s " %(instanceId, instanceName, instanceType, state))
-    
 
     def byebye(self):
         print("bye bye")

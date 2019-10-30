@@ -8,20 +8,23 @@ Controlling AWS ec2 instances with AWS SDK
 
 ### Menu
 
-(implemented)
-
-1. listing instance
-2. starting instance
-3. stopping instance
-4. rebooting instance
-5. listing images (AMI)
+1. list instance
+2. list available zones
+3. start instance
+4. list available regions
+5. stop instance
+6. create instance
+7. reboot instance
+8. list images (AMI)
 
 ### Additional Functions
 
-1. creating image (AMI) from instance
-2. deleting image (AMI)
-3. listing running instance (not implemented yet)
-4. listing stopped instance (not implemented yet)
+9. create image (AMI) from instance
+10. delete image (AMI)
+11. list snapshots
+12. delete snapshots
+13. list running instance
+14. list stopped instance
 
 ### Requirements
 
@@ -34,3 +37,9 @@ Controlling AWS ec2 instances with AWS SDK
 pip3 install -r requirements.txt
 python3 run.py
 ```
+
+> easy !
+
+### Image
+
+![image-20191030235409833](./img_md/image-20191030235409833.png)

@@ -8,6 +8,7 @@ class Menu:
         self.ec2 = boto3.resource('ec2')
         self.options = {
             1 : self.listInstances,
+            2 : self.availableZones,
             3 : self.startInstance,
             5 : self.stopInstance,
             7 : self.rebootInstance,
@@ -32,7 +33,7 @@ class Menu:
 
     def runner(self):
         # runner
-        self.displayMenu()
+        self.displayMenu() # print menu
         print("Input menu : ", end='')
         try:
             action = self.options.get(int(input()))
@@ -46,8 +47,9 @@ class Menu:
             print("hey what ?!?") # invalid menu
         print()
 
+    # get instanceId from user
+    # and get that ec2 instance from AWS server
     def getInstance(self):
-
         print("Instance Id : ", end='')
         self.instanceId = input()
         try:
@@ -56,6 +58,21 @@ class Menu:
             print("Failed to load that instance.")
 
         return self.instance
+
+    def availableZones(self):
+        try:
+            # load zones for state : available
+            allZones = self.client.describe_availability_zones(Filters=[{'Name' : 'state', 'Values':['available']}])['AvailabilityZones']
+        except :
+            print("Failed to load available zones.", e)
+            sys.exit(-1)
+
+        print("Here are available zones : ")
+        for x in allZones:
+            zoneName = x['ZoneName']
+            regionName = x['RegionName']
+            print ("RegionName : %s, ZoneName : %s" % (regionName, zoneName))
+
 
     def listInstances(self):
         try:
@@ -104,11 +121,18 @@ class Menu:
         if instanceState == 'running':
             instance.reboot() # reboot instance
             print ("rebooting [%s]..." % self.instanceId)
+        else:
+            print("That instance is not running.")
 
     def listImages(self):
-        imageDict = self.client.describe_images(Owners=['self'])
-        allImages = imageDict['Images']
+        try:
+            imageDict = self.client.describe_images(Owners=['self'])
+            allImages = imageDict['Images']
+        except:
+            print("Failed to load image list.")
+            sys.exit(-1)
 
+        print("Listing images....")
         for x in allImages:
             imageId = x['ImageId']
             imageName = x['ImageLocation'].split('/')[1]
@@ -119,15 +143,24 @@ class Menu:
         self.getInstance()
         print("New Image name : ", end='')
         imageName = input()
-        self.client.create_image(InstanceId=self.instanceId, Name=imageName)
 
-        print("Creating new image [%s] from [%s] done" % (imageName, self.instanceId))
+        try:
+            self.client.create_image(InstanceId=self.instanceId, Name=imageName)
+            print("Creating new image [%s] from [%s] done" % (imageName, self.instanceId))
+        except:
+            print("Failed to create new image.")
+            sys.exit(-1)
 
     def deleteImage(self):
         print("Image id for deleting: ", end='')
         imageId = input()
-        self.client.deregister_image(ImageId=imageId)
-        print("Deleting image [%s] done" % (imageId))
+
+        try:
+            self.client.deregister_image(ImageId=imageId)
+            print("Deleting image [%s] done" % (imageId))
+        except:
+            print("Failed to delete that image.")
+            sys.exit(-1)
 
     def byebye(self):
         print("bye bye")

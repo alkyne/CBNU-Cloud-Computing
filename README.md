@@ -13,8 +13,24 @@ Controlling AWS ec2 instances with AWS SDK
 1. listing instance
 2. starting instance
 3. stopping instance
+4. rebooting instance
+5. listing images (AMI)
 
 ### Additional Functions
 
-1. listing running instance
-2. listing stopped instance
+1. creating image (AMI) from instance
+2. deleting image (AMI)
+3. listing running instance
+4. listing stopped instance
+
+### Requirements
+
+1. Python3 (tested on 3.7.3)
+2. aws access key on ~/.aws/credentials
+
+### How to run
+
+```
+pip3 install -r requirements.txt
+python3 run.py
+```

@@ -14,6 +14,8 @@ class Menu:
             8 : self.listImages,
             99: self.byebye,
         }
+
+        self.runner() # run
     
     def displayMenu(self):
         print('---------------------------------------------------')
@@ -28,18 +30,35 @@ class Menu:
         # runner
         self.displayMenu()
         print("Input menu : ", end='')
-        action = self.options.get(int(input()))
+        try:
+            action = self.options.get(int(input()))
+        except:
+            print("nop")
+            sys.exit(-1)
+
         if action:
             action()
         else:
             print("hey what ?!?") # invalid menu
+        print()
 
-    def inputInstanceId(self):
+    def getInstance(self):
+
         print("Instance Id : ", end='')
         self.instanceId = input()
+        try:
+            self.instance = self.ec2.Instance(self.instanceId)
+        except:
+            print("Failed to load that instance.")
+
+        return self.instance
 
     def listInstances(self):
-        allInstances = self.ec2.instances.all()
+        try:
+            allInstances = self.ec2.instances.all()
+        except:
+            print("Failed to load instance list.")
+            sys.exit(-1)
         
         print ("Listing instances....")
         for x in allInstances:
@@ -54,8 +73,9 @@ class Menu:
             # print(dir(x))
     
     def startInstance(self):
-        self.inputInstanceId()
-        instance = self.ec2.Instance(self.instanceId)
+        
+        instance = self.getInstance()
+
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'stopped':
             res = instance.start() # start instance
@@ -66,8 +86,7 @@ class Menu:
             print ("Instance [%s] is already running." % self.instanceId)
 
     def stopInstance(self):
-        self.inputInstanceId()
-        instance = self.ec2.Instance(self.instanceId)
+        instance = self.getInstance()
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'running':
             res = instance.stop() # stop instance
@@ -78,12 +97,11 @@ class Menu:
             print ("Instance [%s] is not running." % self.instanceId)
     
     def rebootInstance(self):
-        self.inputInstanceId()
-        instance = self.ec2.Instance(self.instanceId)
+        instance = self.getInstance()
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'running':
             instance.reboot() # reboot instance
-            print ("rebooting [%s]..." % instanceId)
+            print ("rebooting [%s]..." % self.instanceId)
 
     def listImages(self):
         allImages = self.client.describe_images(Owners=['self'])
@@ -96,5 +114,5 @@ class Menu:
 
 if __name__ == '__main__':
     while True:
-        m = Menu().runner()
+        m = Menu()
         del m

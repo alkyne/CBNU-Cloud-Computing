@@ -49,13 +49,13 @@ class Menu:
         self.displayMenu() # print menu
         print("Input menu : ", end='')
         try:
-            action = self.options.get(int(input()))
+            func = self.options.get(int(input()))
         except:
             print("nop")
             sys.exit(-1)
-
-        if action:
-            action()
+            
+        if func:
+            func()
         else:
             print("hey what ?!?") # invalid menu
         print()
@@ -104,28 +104,33 @@ class Menu:
         try:
             print ("Listing instances....")
             allInstances = self.ec2.instances.all() # get all instances
+        
+            for x in allInstances:
+                instanceId = x.id  
+                instanceName = x.tags[0]['Value']
+                instanceAmi = x.image_id
+                state = x.state['Name']
+                instanceType = x.instance_type
+                privateAddr = x.private_ip_address
+
+                print ("[ID] : %s [name] : %s [AMI] : %s [type] : %s [state] : %s [IP] : %s" %(instanceId, instanceName, instanceAmi, instanceType, state, privateAddr))
         except:
             print("Failed to load instance list.")
             sys.exit(-1)
         
-        for x in allInstances:
-            instanceId = x.id
-            instanceName = x.tags[0]['Value']
-            instanceAmi = x.image_id
-            state = x.state['Name']
-            instanceType = x.instance_type
-            privateAddr = x.private_ip_address
 
-            print ("[ID] : %s [name] : %s [AMI] : %s [type] : %s [state] : %s [IP] : %s" %(instanceId, instanceName, instanceAmi, instanceType, state, privateAddr))
-    
     def startInstance(self):
         instance = self.getInstance()
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'stopped':
-            res = instance.start() # start instance
-            res = str(res)
-            if res.find("pending") != -1:
-                print ("Instance [%s] successfully started." % self.instanceId)
+            try:
+                res = instance.start() # start instance
+                res = str(res)
+                if res.find("pending") != -1:
+                    print ("Instance [%s] is successfully started." % self.instanceId)
+            except:
+                print("Failed to start that instance.")
+                sys.exit(-1)
         else:
             print ("Instance [%s] is already running." % self.instanceId)
 
@@ -133,10 +138,14 @@ class Menu:
         instance = self.getInstance()
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'running':
-            res = instance.stop() # stop instance
-            res = str(res)
-            if res.find("stopping") != -1:
-                print ("Instance [%s] successfully stopped." % self.instanceId)
+            try:
+                res = instance.stop() # stop instance
+                res = str(res)
+                if res.find("stopping") != -1:
+                    print ("Instance [%s] is successfully stopped." % self.instanceId)
+            except:
+                print("Failed to stop that instance.")
+                sys.exit(-1)
         else:
             print ("Instance [%s] is not running." % self.instanceId)
     
@@ -144,8 +153,12 @@ class Menu:
         instance = self.getInstance()
         instanceState = instance.state['Name'] # get instance state
         if instanceState == 'running':
-            instance.reboot() # reboot instance
-            print ("rebooting [%s]..." % self.instanceId)
+            try:
+                instance.reboot() # reboot instance
+                print ("rebooting [%s]..." % self.instanceId)
+            except:
+                print ("Failed to reboot that instance.")
+                sys.exit(-1)
         else:
             print("That instance is not running.")
 
@@ -220,35 +233,37 @@ class Menu:
         try:
             print ("Listing instances....")
             allInstances = self.ec2.instances.all() # get all instances
+        
+            for x in allInstances:
+                instanceId = x.id
+                instanceName = x.tags[0]['Value']
+                state = x.state['Name']
+                instanceType = x.instance_type
+
+                if "running" in state:
+                    print ("[ID] : %s [name] : %s [type] : %s [state] : %s " %(instanceId, instanceName, instanceType, state))
         except:
             print("Failed to load instance list.")
             sys.exit(-1)
         
-        for x in allInstances:
-            instanceId = x.id
-            instanceName = x.tags[0]['Value']
-            state = x.state['Name']
-            instanceType = x.instance_type
 
-            if "running" in state:
-                print ("[ID] : %s [name] : %s [type] : %s [state] : %s " %(instanceId, instanceName, instanceType, state))
-        
     def stoppedInstances(self):
         try:
             print ("Listing instances....")
             allInstances = self.ec2.instances.all() # get all instances
+        
+            for x in allInstances:
+                instanceId = x.id
+                instanceName = x.tags[0]['Value']
+                state = x.state['Name']
+                instanceType = x.instance_type
+
+                if "stop" in state:
+                    print ("[ID] : %s [name] : %s [type] : %s [state] : %s " %(instanceId, instanceName, instanceType, state))
+
         except:
             print("Failed to load instance list.")
             sys.exit(-1)
-        
-        for x in allInstances:
-            instanceId = x.id
-            instanceName = x.tags[0]['Value']
-            state = x.state['Name']
-            instanceType = x.instance_type
-
-            if "stop" in state:
-                print ("[ID] : %s [name] : %s [type] : %s [state] : %s " %(instanceId, instanceName, instanceType, state))
 
     def byebye(self):
         print("bye bye")

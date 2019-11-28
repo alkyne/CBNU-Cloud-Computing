@@ -29,7 +29,7 @@ Controlling AWS ec2 instances with AWS SDK
 ### Requirements
 
 1. Python3 (tested on 3.7.3)
-2. aws access key on ~/.aws/credentials
+2. locate your aws access key on ~/.aws/credentials
 
 ### How to run
 

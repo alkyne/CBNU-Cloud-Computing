@@ -12,6 +12,7 @@ class Menu:
             3 : self.startInstance,
             4 : self.availableRegions,
             5 : self.stopInstance,
+            6 : self.createInstance,
             7 : self.rebootInstance,
             8 : self.listImages,
             9 : self.createImage,
@@ -106,8 +107,11 @@ class Menu:
             allInstances = self.ec2.instances.all() # get all instances
         
             for x in allInstances:
-                instanceId = x.id  
-                instanceName = x.tags[0]['Value']
+                instanceId = x.id 
+                try:
+                    instanceName = x.tags[0]['Value']
+                except:
+                    instanceName = "None"
                 instanceAmi = x.image_id
                 state = x.state['Name']
                 instanceType = x.instance_type
@@ -161,6 +165,18 @@ class Menu:
                 sys.exit(-1)
         else:
             print("That instance is not running.")
+
+    def createInstance(self):
+        print("Image Id : ", end='')
+        imageId = input()
+
+        try:
+            instance = self.ec2.create_instances(ImageId=imageId, MinCount=1, MaxCount=1, InstanceType='t2.micro')
+            print("New instance [%s] created." % (instance[0].id))
+        
+        except:
+            print("Failed to create new instance")
+            sys.exit(-1)
 
     def listImages(self):
         try:
